@@ -24,7 +24,7 @@ api_key = os.getenv("ZHIPUAI_API_KEY")
 if not api_key:
     raise ValueError("请设置环境变量: ZHIPUAI_API_KEY")
 
-llm = ChatZhipuAI(
+chat = ChatZhipuAI(
     model="glm-4",
     temperature=0.1,
     api_key=api_key
@@ -246,7 +246,7 @@ Question: {input}
 Thought: {agent_scratchpad}""")
 
 # 创建 ReAct Agent
-agent = create_react_agent(llm, tools, prompt)
+agent = create_react_agent(chat, tools, prompt)
 
 # 创建 Agent 执行器
 agent_executor = AgentExecutor(

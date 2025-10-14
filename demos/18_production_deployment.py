@@ -135,7 +135,7 @@ class ProductionLangChainService:
 
     def __init__(self):
         self.start_time = time.time()
-        self.llm = None
+        self.chat = None
         self.agents = {}
         self.session_store = {}
         self.request_count = 0
@@ -158,7 +158,7 @@ class ProductionLangChainService:
             if not api_key:
                 raise ValueError("ZHIPUAI_API_KEY 环境变量未设置")
 
-            self.llm = ChatZhipuAI(
+            self.chat = ChatZhipuAI(
                 model="glm-4",
                 temperature=0.1,
                 api_key=api_key,
@@ -213,7 +213,7 @@ CPU 使用率: {cpu_percent}%
             ])
 
             # 创建 Agent
-            general_agent = create_tool_calling_agent(self.llm, tools, general_prompt)
+            general_agent = create_tool_calling_agent(self.chat, tools, general_prompt)
             self.agents["general"] = AgentExecutor(
                 agent=general_agent,
                 tools=tools,

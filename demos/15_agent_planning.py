@@ -28,7 +28,7 @@ api_key = os.getenv("ZHIPUAI_API_KEY")
 if not api_key:
     raise ValueError("请设置环境变量: ZHIPUAI_API_KEY")
 
-llm = ChatZhipuAI(
+chat = ChatZhipuAI(
     model="glm-4",
     temperature=0.2,
     api_key=api_key
@@ -456,7 +456,7 @@ planning_prompt = ChatPromptTemplate.from_messages([
 ])
 
 # 创建规划 Agent
-planning_agent = create_tool_calling_agent(llm, planning_tools, planning_prompt)
+planning_agent = create_tool_calling_agent(chat, planning_tools, planning_prompt)
 
 # 创建规划 Agent 执行器
 planning_executor = AgentExecutor(
