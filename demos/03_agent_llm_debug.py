@@ -1,8 +1,9 @@
-# demos/01_basic_llm_usage.py
+# demos/03_agent_llm_debug.py
 
 """
-学习目标: 学习LangChain的 Agent调用
+学习目标: 学习LangChain的 Agent调用（修复版本）
 时间: 2025/10/05
+说明: 使用JSON Chat Agent的正确实现示例
 """
 
 from langchain_community.chat_models import ChatZhipuAI

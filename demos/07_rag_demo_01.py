@@ -1,8 +1,9 @@
-# demos/01_basic_llm_usage.py
+# demos/07_rag_demo_01.py
 
 """
-学习目标: 学习LangChain的 RAG调用
+学习目标: 学习LangChain的 RAG（检索增强生成）调用
 时间: 2025/10/06
+说明: 完整的RAG系统实现，包含文档加载、分割、向量化和检索
 """
 
 from langchain_community.chat_models import ChatZhipuAI

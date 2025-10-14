@@ -1,8 +1,9 @@
-# demos/01_basic_llm_usage.py
+# demos/02_agent_llm_debug_error.py
 
 """
-学习目标: 学习LangChain的 Agent调用
+学习目标: 学习LangChain的 Agent调用（调试版本）
 时间: 2025/10/05
+说明: 包含错误的Agent实现示例，用于调试和学习错误处理
 """
 
 from langchain_community.chat_models import ChatZhipuAI
