@@ -47,7 +47,7 @@ tools = [
 prompt = hub.pull("hwchase17/react")
 
 # 4. 创建 Agent
-agent = create_react_agent(llm, tools, prompt)
+agent = create_react_agent(chat, tools, prompt)
 
 # 5. 创建 AgentExecutor（新版必须）
 agent_executor = AgentExecutor(
