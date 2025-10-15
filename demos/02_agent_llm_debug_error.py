@@ -39,14 +39,29 @@ def get_current_time() -> str:
     return time.strftime("%Y-%m-%d %H:%M:%S")
 
 @tool
-def calculate_sum(a: str, b: str) -> str:
-    """计算两个数的和"""
+def calculate_sum(expression: str) -> str:
+    """计算任意两个数字的和。支持多种输入格式，如 '25+37', '25, 37', '25 and 37', '25 37' 等"""
     try:
-        num_a = float(a)
-        num_b = float(b)
-        return str(num_a + num_b)
+        # 移除常见的连接词和符号，提取数字
+        import re
+
+        # 使用正则表达式提取所有数字（包括小数）
+        numbers = re.findall(r'[-+]?\d*\.?\d+', expression)
+
+        if len(numbers) < 2:
+            return "请提供两个数字进行计算"
+
+        # 取前两个数字进行相加
+        num1 = float(numbers[0])
+        num2 = float(numbers[1])
+        result = num1 + num2
+
+        return f"{num1} + {num2} = {result}"
+
     except ValueError:
-        return "输入必须是数字"
+        return "输入包含无效的数字格式"
+    except Exception as e:
+        return f"计算错误: {str(e)}"
 
 @tool
 def get_random_number() -> str:
@@ -57,16 +72,13 @@ def get_random_number() -> str:
 tools = [get_current_time, calculate_sum, get_random_number]
 
 # 4. 创建 ReAct 提示模板
+
 prompt = PromptTemplate.from_template("""
 你是一个智能助手，可以使用以下工具来帮助用户：
-
 可用工具：
 {tools}
-
 工具名称：{tool_names}
-
 请使用以下格式回答：
-
 Question: 用户的问题
 Thought: 我需要思考如何回答这个问题
 Action: 选择一个工具
@@ -75,9 +87,7 @@ Observation: 工具的输出结果
 ... (可以重复 Thought/Action/Action Input/Observation)
 Thought: 我现在知道最终答案了
 Final Answer: 对用户问题的最终回答
-
 开始！
-
 Question: {input}
 Thought: {agent_scratchpad}
 """)
