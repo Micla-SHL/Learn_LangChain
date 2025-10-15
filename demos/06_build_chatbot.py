@@ -46,14 +46,13 @@ prompt_template = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are a helpful assistant. Answer all questions to the best of your ability in {language}.",
+            "你是一个友好的助手，用{language}语言尽可能好地回答用户的问题。",
         ),
         MessagesPlaceholder(variable_name="messages"),
     ]
     )
 
-# Define a new graph
-#workflow = StateGraph(state_schema=MessagesState)
+# 定义新的图
 
 class State(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
@@ -91,7 +90,7 @@ async def main():
     
     # 第一轮对话
     query = "你好，我是杨顶天。请写一篇300字的关于春天的文章"
-    language = "Japanese"
+    language = "中文"
     input_messages = [HumanMessage(query)]
 
     

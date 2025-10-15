@@ -21,12 +21,15 @@ chat = ChatZhipuAI(
         api_key = api_key
 )
 
+# 正确的消息顺序：系统消息 -> 用户消息
 messages = [
-        AIMessage(content="Hi."),
-        SystemMessage(content="Your role is a poet."),
-        HumanMessage(content="Write a short poem about AI in four lines."),
-        ]
+    SystemMessage(content="你是一个诗人，擅长写简短优美的诗歌。"),
+    HumanMessage(content="请用中文写一首关于人工智能的四行诗。")
+]
 
+print("=== LangChain 基础LLM调用示例 ===")
+print(f"用户问题: {messages[1].content}")
+print()
 
 response = chat.invoke(messages)
-print(response.content) #Displays the AI-generated poem
+print(f"AI回复: {response.content}")
