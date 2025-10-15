@@ -405,7 +405,7 @@ rag_prompt = ChatPromptTemplate.from_messages([
 ])
 
 # 创建 RAG Agent
-rag_agent = create_tool_calling_agent(llm, rag_tools, rag_prompt)
+rag_agent = create_tool_calling_agent(chat, rag_tools, rag_prompt)
 
 # 创建 RAG Agent 执行器
 rag_executor = AgentExecutor(

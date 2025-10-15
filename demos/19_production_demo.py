@@ -85,7 +85,7 @@ class IntelligentBusinessAssistant:
     """智能业务助手平台"""
 
     def __init__(self):
-        self.llm = llm
+        self.llm = chat
         self.sessions: Dict[str, CustomerSession] = {}
         self.knowledge_base = InMemoryVectorStore(embedding=embeddings)
         self.document_store = {}

@@ -18,7 +18,7 @@ import uuid
 import hashlib
 import secrets
 
-from fastapi import FastAPI, HTTPException, Depends, status, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Depends, status, BackgroundTasks, Request, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -383,7 +383,7 @@ async def root():
 
 @app.get("/health", response_model=HealthCheck)
 @limiter.limit("30/minute")
-async def health_check():
+async def health_check(request: Request):
     """健康检查端点"""
     return service.get_health_status()
 
@@ -416,7 +416,7 @@ async def chat(
 
 @app.get("/metrics", response_model=MetricsResponse)
 @limiter.limit("60/minute")
-async def get_metrics():
+async def get_metrics(request: Request):
     """获取系统指标"""
     return MetricsResponse(
         timestamp=datetime.now(),
@@ -441,7 +441,7 @@ async def prometheus_metrics():
 
 @app.delete("/sessions/{session_id}")
 @limiter.limit("30/minute")
-async def clear_session(session_id: str):
+async def clear_session(request: Request, session_id: str):
     """清除会话"""
     if session_id in service.session_store:
         del service.session_store[session_id]
