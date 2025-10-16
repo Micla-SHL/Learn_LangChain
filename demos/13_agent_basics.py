@@ -42,163 +42,215 @@ print("=== 2. 创建自定义工具 ===")
 # 定义计算器工具
 @tool
 def calculator(expression: str) -> str:
-    """计算数学表达式，支持加减乘除、幂运算、三角函数等
+    """计算数学表达式，支持加减乘除、幂运算等基础运算
 
     Args:
-        expression: 数学表达式，如 "2 + 3 * 4" 或 "sin(0.5)"
+        expression: 数学表达式，如 "2 + 3 * 4" 或 "15*8+32"
     """
     try:
-        # 安全的数学表达式求值
-        allowed_names = {
-            k: v for k, v in math.__dict__.items()
-            if not k.startswith("_")
-        }
+        # 清理输入：移除引号、多余空格、换行符等
+        expr = str(expression).strip()
+        expr = expr.replace('"', '').replace("'", '').replace(' ', '')
 
-        # 创建安全环境
-        safe_dict = {
-            "__builtins__": {},
-            "pi": math.pi,
-            "e": math.e,
-        }
-        safe_dict.update(allowed_names)
+        # 移除可能的换行符和额外的文本
+        expr = expr.split('\n')[0]  # 只取第一行
+        expr = expr.split('Observation')[0]  # 移除Observation部分
+        expr = expr.strip()
 
-        result = eval(expression, safe_dict)
-        return f"计算结果: {result}"
+        # 如果输入为空，返回错误
+        if not expr:
+            return "计算错误: 输入为空"
+
+        # 简化验证：只检查基本字符
+        valid_chars = '0123456789+-*/().'
+        if not all(c in valid_chars for c in expr):
+            return f"计算错误: 包含无效字符 '{expr}'"
+
+        # 直接计算，简化逻辑
+        try:
+            result = eval(expr, {"__builtins__": {}}, {})
+            return f"计算结果: {result}"
+        except Exception as e:
+            return f"计算错误: {str(e)} (输入: {expr})"
 
     except Exception as e:
         return f"计算错误: {str(e)}"
 
 # 定义当前时间工具
 @tool
-def get_current_time(format_type: str = "standard") -> str:
-    """获取当前时间和日期
+def get_current_time(format_request: str = "获取标准格式时间") -> str:
+    """获取当前时间和日期。支持中文和英文请求，如 '获取中文格式时间', '获取ISO格式时间', '获取时间戳' 等
 
     Args:
-        format_type: 时间格式类型，可选 "standard", "iso", "timestamp", "chinese"
+        format_request: 时间格式请求描述
     """
     now = datetime.now()
+    request_lower = format_request.lower()
 
-    if format_type == "standard":
-        return now.strftime("%Y-%m-%d %H:%M:%S")
-    elif format_type == "iso":
-        return now.isoformat()
-    elif format_type == "timestamp":
-        return str(int(now.timestamp()))
-    elif format_type == "chinese":
+    if "中文" in format_request or "chinese" in request_lower:
         return now.strftime("%Y年%m月%d日 %H时%M分%S秒")
+    elif "iso" in request_lower:
+        return now.isoformat()
+    elif "时间戳" in format_request or "timestamp" in request_lower:
+        return str(int(now.timestamp()))
+    elif "标准" in format_request or "standard" in request_lower:
+        return now.strftime("%Y-%m-%d %H:%M:%S")
     else:
-        return f"不支持的格式类型: {format_type}"
+        # 默认返回标准格式
+        return now.strftime("%Y-%m-%d %H:%M:%S")
 
 # 定义文本分析工具
 @tool
-def analyze_text(text: str, analysis_type: str = "basic") -> str:
-    """分析文本的基本信息
+def analyze_text(analysis_request: str) -> str:
+    """分析文本的基本信息。支持基础分析、详细分析、情感分析，如 '分析这段文本的情感', '分析文本基本信息' 等
 
     Args:
-        text: 要分析的文本内容
-        analysis_type: 分析类型，可选 "basic", "detailed", "sentiment"
+        analysis_request: 分析请求，包含要分析的文本和分析类型
     """
-    if analysis_type == "basic":
-        char_count = len(text)
-        word_count = len(text.split())
-        sentence_count = text.count('.') + text.count('!') + text.count('?') + text.count('。') + text.count('！') + text.count('？')
+    try:
+        request_lower = analysis_request.lower()
 
-        return f"""文本基本信息:
+        # 判断分析类型
+        if "情感" in analysis_request or "sentiment" in request_lower:
+            analysis_type = "sentiment"
+        elif "详细" in analysis_request or "detailed" in request_lower:
+            analysis_type = "detailed"
+        else:
+            analysis_type = "basic"
+
+        # 提取要分析的文本（简化处理：假设整个请求都是要分析的文本）
+        # 在实际使用中，用户会将文本包含在请求中
+        text = analysis_request
+
+        if analysis_type == "basic":
+            char_count = len(text)
+            word_count = len(text.split())
+            sentence_count = text.count('.') + text.count('!') + text.count('?') + text.count('。') + text.count('！') + text.count('？')
+
+            return f"""文本基本信息:
 - 字符数: {char_count}
 - 单词数: {word_count}
 - 句子数: {sentence_count}"""
 
-    elif analysis_type == "detailed":
-        # 更详细的分析
-        char_count = len(text)
-        word_count = len(text.split())
-        char_no_space = len(text.replace(' ', '').replace('\t', '').replace('\n', ''))
-        avg_word_length = sum(len(word) for word in text.split()) / max(word_count, 1)
+        elif analysis_type == "detailed":
+            # 更详细的分析
+            char_count = len(text)
+            word_count = len(text.split())
+            char_no_space = len(text.replace(' ', '').replace('\t', '').replace('\n', ''))
+            avg_word_length = sum(len(word) for word in text.split()) / max(word_count, 1)
 
-        return f"""详细文本分析:
+            return f"""详细文本分析:
 - 总字符数: {char_count}
 - 不含空格字符数: {char_no_space}
 - 单词数: {word_count}
 - 平均单词长度: {avg_word_length:.2f}
 - 段落数: {text.count('\n\n') + 1}"""
 
-    elif analysis_type == "sentiment":
-        # 简单的情感分析
-        positive_words = ["好", "棒", "优秀", "喜欢", "美好", "amazing", "great", "excellent", "good", "love"]
-        negative_words = ["坏", "差", "糟糕", "讨厌", "terrible", "bad", "awful", "hate", "horrible"]
+        elif analysis_type == "sentiment":
+            # 简单的情感分析
+            positive_words = ["好", "棒", "优秀", "喜欢", "美好", "amazing", "great", "excellent", "good", "love"]
+            negative_words = ["坏", "差", "糟糕", "讨厌", "terrible", "bad", "awful", "hate", "horrible"]
 
-        text_lower = text.lower()
-        positive_count = sum(1 for word in positive_words if word in text_lower)
-        negative_count = sum(1 for word in negative_words if word in text_lower)
+            text_lower = text.lower()
+            positive_count = sum(1 for word in positive_words if word in text_lower)
+            negative_count = sum(1 for word in negative_words if word in text_lower)
 
-        if positive_count > negative_count:
-            sentiment = "积极"
-        elif negative_count > positive_count:
-            sentiment = "消极"
-        else:
-            sentiment = "中性"
+            if positive_count > negative_count:
+                sentiment = "积极"
+            elif negative_count > positive_count:
+                sentiment = "消极"
+            else:
+                sentiment = "中性"
 
-        return f"""情感分析:
+            return f"""情感分析:
 - 积极词汇数量: {positive_count}
 - 消极词汇数量: {negative_count}
 - 整体情感倾向: {sentiment}"""
 
-    else:
-        return f"不支持的分析类型: {analysis_type}"
+        else:
+            return f"不支持的分析类型"
+
+    except Exception as e:
+        return f"分析错误: {str(e)}"
 
 # 定义单位转换工具
 @tool
-def unit_converter(value: float, from_unit: str, to_unit: str) -> str:
-    """单位转换工具
+def unit_converter(conversion_request: str) -> str:
+    """单位转换工具。支持长度、重量、温度转换，如 '25摄氏度转华氏度', '100米转公里', '5公斤转磅' 等
 
     Args:
-        value: 要转换的数值
-        from_unit: 原始单位
-        to_unit: 目标单位
+        conversion_request: 转换请求描述
     """
-    # 长度单位转换
-    length_units = {
-        "meter": 1.0,
-        "kilometer": 0.001,
-        "centimeter": 100.0,
-        "millimeter": 1000.0,
-        "mile": 0.000621371,
-        "yard": 1.09361,
-        "foot": 3.28084,
-        "inch": 39.3701
-    }
+    import re
 
-    # 重量单位转换
-    weight_units = {
-        "kilogram": 1.0,
-        "gram": 1000.0,
-        "milligram": 1000000.0,
-        "pound": 2.20462,
-        "ounce": 35.274
-    }
+    try:
+        # 提取数字和单位
+        request_lower = conversion_request.lower()
 
-    # 温度单位转换
-    if from_unit.lower() in ["celsius", "c"] and to_unit.lower() in ["fahrenheit", "f"]:
-        result = (value * 9/5) + 32
-        return f"{value}°C = {result:.2f}°F"
-    elif from_unit.lower() in ["fahrenheit", "f"] and to_unit.lower() in ["celsius", "c"]:
-        result = (value - 32) * 5/9
-        return f"{value}°F = {result:.2f}°C"
+        # 温度转换
+        temp_pattern = r'(\d+(?:\.\d+)?)\s*摄氏度|度|c\s*转\s*华氏度|fahrenheit|f'
+        temp_match = re.search(temp_pattern, request_lower)
+        if temp_match or "摄氏度" in conversion_request or ("华氏度" in conversion_request and "度" in conversion_request):
+            # 提取温度值
+            temp_nums = re.findall(r'\d+(?:\.\d+)?', conversion_request)
+            if temp_nums:
+                temp_value = float(temp_nums[0])
+                if "摄氏度" in conversion_request or ("c" in request_lower and "f" in request_lower):
+                    result = (temp_value * 9/5) + 32
+                    return f"{temp_value}°C = {result:.2f}°F"
 
-    # 长度转换
-    elif from_unit.lower() in length_units and to_unit.lower() in length_units:
-        base_value = value * length_units[from_unit.lower()]
-        result = base_value / length_units[to_unit.lower()]
-        return f"{value} {from_unit} = {result:.4f} {to_unit}"
+        # 长度转换
+        length_units = {
+            "米": 1.0, "meter": 1.0,
+            "公里": 0.001, "kilometer": 0.001,
+            "厘米": 100.0, "centimeter": 100.0,
+            "毫米": 1000.0, "millimeter": 1000.0,
+            "英里": 0.000621371, "mile": 0.000621371,
+            "码": 1.09361, "yard": 1.09361,
+            "英尺": 3.28084, "foot": 3.28084,
+            "英寸": 39.3701, "inch": 39.3701
+        }
 
-    # 重量转换
-    elif from_unit.lower() in weight_units and to_unit.lower() in weight_units:
-        base_value = value * weight_units[from_unit.lower()]
-        result = base_value / weight_units[to_unit.lower()]
-        return f"{value} {from_unit} = {result:.4f} {to_unit}"
+        for unit_name, factor in length_units.items():
+            if unit_name in conversion_request:
+                nums = re.findall(r'\d+(?:\.\d+)?', conversion_request)
+                if len(nums) >= 1:
+                    value = float(nums[0])
+                    # 简单处理：如果不是米，先转换为米
+                    if unit_name in ["米", "meter"]:
+                        meters = value
+                    else:
+                        meters = value / factor
 
-    else:
-        return f"不支持的单位转换: {from_unit} 到 {to_unit}"
+                    # 转换为公里作为示例
+                    km = meters * 0.001
+                    return f"{value} {unit_name} = {km:.4f} 公里"
+
+        # 重量转换
+        weight_units = {
+            "公斤": 1.0, "kilogram": 1.0,
+            "克": 1000.0, "gram": 1000.0,
+            "磅": 2.20462, "pound": 2.20462
+        }
+
+        for unit_name, factor in weight_units.items():
+            if unit_name in conversion_request:
+                nums = re.findall(r'\d+(?:\.\d+)?', conversion_request)
+                if len(nums) >= 1:
+                    value = float(nums[0])
+                    if unit_name in ["公斤", "kilogram"]:
+                        kg = value
+                    else:
+                        kg = value / factor
+
+                    # 转换为磅作为示例
+                    pounds = kg * 2.20462
+                    return f"{value} {unit_name} = {pounds:.4f} 磅"
+
+        return f"无法识别转换请求: {conversion_request}"
+
+    except Exception as e:
+        return f"转换错误: {str(e)}"
 
 # 创建工具列表
 tools = [
@@ -214,31 +266,31 @@ for tool in tools:
 print()
 
 print("=== 3. 创建 ReAct Agent ===")
-# 使用 LangChain Hub 的 ReAct 提示模板
-# 注意：这个可能需要网络连接，我们提供一个本地模板作为备选
+# 直接使用本地 ReAct 提示模板，确保格式正确
+print("使用本地 ReAct 提示模板")
 
-try:
-    prompt = hub.pull("hwchase17/react")
-    print("使用 LangChain Hub 的 ReAct 提示模板")
-except Exception as e:
-    print(f"无法从 Hub 加载提示模板: {e}")
-    print("使用本地 ReAct 提示模板")
-
-    # 本地 ReAct 提示模板
-    prompt = ChatPromptTemplate.from_template("""回答以下问题，你可以使用这些工具：
+# 本地 ReAct 提示模板
+prompt = ChatPromptTemplate.from_template("""回答以下问题，你可以使用这些工具：
 
 {tools}
+
+工具名称：{tool_names}
 
 使用以下格式：
 
 Question: 你需要回答的问题
 Thought: 你应该思考要做什么
-Action: 选择要使用的工具名称
-Action Input: 工具的输入参数
+Action: 工具名称 (只写工具名称，不要加括号或参数)
+Action Input: 工具的输入 (作为字符串，不要用括号或参数名)
 Observation: 工具执行的结果
 ... (这个 Thought/Action/Action Input/Observation 可以重复)
 Thought: 我现在知道最终答案了
 Final Answer: 最终的答案
+
+重要提示：
+1. Action行只写工具名称，如: calculator
+2. Action Input行只写输入值，如: 2024-1990 或 获取中文格式时间
+3. 不要使用 calculator(2024-1990) 或 calculator(expression='2024-1990') 这样的格式
 
 开始！
 
