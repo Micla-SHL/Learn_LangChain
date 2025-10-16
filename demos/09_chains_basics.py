@@ -26,23 +26,14 @@ chat = ChatZhipuAI(
 
 print("=== 1. 最简单的链 (LLMChain) ===")
 # 创建提示模板
-story_prompt = PromptTemplate.from_template(
-    "请写一个关于{topic}的{genre}故事，大约{length}字。"
-)
 
-# 创建链
-story_chain = story_prompt | chat | StrOutputParser()
-
-# 执行链
-result = story_chain.invoke({
-    "topic": "人工智能",
-    "genre": "科幻",
-    "length": "200"
-})
-
-print("故事生成结果:")
-print(result)
-print()
+print("=== 1. 旧版 LLMChain (已弃用，仅展示概念) ===")
+print("""
+# 旧版本的写法（现已无法运行）：
+# from langchain.chains import LLMChain
+# story_chain = LLMChain(llm=chat, prompt=story_prompt)
+# result = story_chain.run({...})
+      """);
 
 print("=== 2. 使用 LCEL 创建链 ===")
 # 使用 LCEL 方式创建链（推荐方式）
